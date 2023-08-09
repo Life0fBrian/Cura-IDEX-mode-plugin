@@ -6,11 +6,19 @@ This tiny plugin adds a custom parameter called **IDEX Mode** to the Cura sideba
 The need for this plugin came up due to my IDEX printer mod and the IDEX Klipper branch of [@dmbutyugin](https://github.com/dmbutyugin):
 https://github.com/dmbutyugin/klipper/tree/idex
 
-This branch makes it possible for Klipper to support all IDEX modes: IDEX, copy and mirror.
+This branch makes it possible for Klipper to support all IDEX modes: **IDEX**, **copy** and **mirror**.
 
 However until now you need to set up the respective mode in the Klipper macros before slicing the models.
-This plugin now lets you select the IDEX mode already in Cura and the parameter can be accessed via the variable **{idex_mode}** in the slicer start code:
->PRINT_START BED_TEMP={material_bed_temperature_layer_0} HOTEND_TEMP={material_print_temperature_layer_0} IDEX_MODE={idex_mode}
+This plugin now lets you select the IDEX mode already in Cura and the parameter can be accessed via the variable `{idex_mode}` in the slicer start code:
 
-This could look in the resulting gcode like follows: 
->PRINT_START BED_TEMP=65 HOTEND_TEMP=210.0 IDEX_MODE=idex
+`PRINT_START BED_TEMP={material_bed_temperature_layer_0} HOTEND_TEMP={material_print_temperature_layer_0} IDEX_MODE={idex_mode}`
+
+This could look in the resulting gcode like follows:
+
+`PRINT_START BED_TEMP=65 HOTEND_TEMP=210.0 IDEX_MODE=idex`
+
+## To-Dos:
+- Halve the width of the build plate when IDEX mode `copy` or `mirror` is selected to get a better feeling about maximum object size.
+
+## Changelog:
+2023-08-09: Creation of this project
