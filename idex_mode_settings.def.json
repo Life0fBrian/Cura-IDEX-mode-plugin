@@ -1,0 +1,18 @@
+{
+	"idex_mode":
+	{
+		"label": "IDEX Mode",
+		"description": "Select the IDEX mode to be used.",
+		"type": "enum",
+		"options":
+		{
+			"idex":   "IDEX",
+			"copy":   "Copy",
+			"mirror": "Mirror"
+		},
+		"default_value": "idex",
+		"settable_per_mesh": false,
+		"settable_per_extruder": false,
+		"settable_per_meshgroup": false
+	}
+}
