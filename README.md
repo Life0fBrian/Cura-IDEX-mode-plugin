@@ -17,8 +17,21 @@ This could look in the resulting gcode like follows:
 
 `PRINT_START BED_TEMP=65 HOTEND_TEMP=210.0 IDEX_MODE=idex`
 
+Then you can process this parameter inside your Klipper `PRINT_START` macro for example with the following code:
+```
+    {% set idex_mode = params.IDEX_MODE|default("idex")|string %}
+
+    {% if idex_mode == "idex"%}
+      # initialize idex mode
+    {% elif idex_mode == "copy" %}
+      # initialize copy mode
+    {% elif idex_mode == "mirror" %}
+      # initialize mirror mode
+    {% endif %}
+```
+
 ## To-Dos:
-- Halve the width of the build plate when IDEX mode `copy` or `mirror` is selected to get a better feeling about maximum object size.
+- Halve the width of the build plate when IDEX mode `copy` or `mirror` is selected to get a better feeling for the maximum possible object size.
 
 ## Changelog:
 2023-08-09: Creation of this project
