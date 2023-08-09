@@ -1,7 +1,8 @@
 # Cura-IDEX-mode-plugin
 This tiny plugin adds a custom parameter called **IDEX Mode** to the Cura sidebar under the Dual Extrusion category that is passed to the slicer start code/gcode and can be processed later via Klipper macros.
 
-![cura_mod](https://github.com/Life0fBrian/Cura-IDEX-mode-plugin/assets/84620081/b59db85a-f8ba-432b-91bc-99fa75a1ceb6)
+![cura_mod](https://github.com/Life0fBrian/Cura-IDEX-mode-plugin/assets/84620081/8aff029f-bdf4-47d5-8996-50231394e439)
+
 
 The need for this plugin came up due to my IDEX printer mod and the IDEX Klipper branch of [@dmbutyugin](https://github.com/dmbutyugin):
 https://github.com/dmbutyugin/klipper/tree/idex
