@@ -36,3 +36,4 @@ Then you can process this parameter inside your Klipper `PRINT_START` macro for 
 
 ## Changelog:
 2023-08-09: Creation of this project
+2023-08-15: Updated plugin to v0.0.2 - depending on IDEX mode the second extruder becomes disabled - adaption of build plate width still in progress.
