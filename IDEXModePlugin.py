@@ -11,22 +11,21 @@ from UM.Settings.SettingDefinition import SettingDefinition
 from UM.Settings.DefinitionContainer import DefinitionContainer
 from UM.Settings.ContainerRegistry import ContainerRegistry
 from UM.Logger import Logger
+from cura import CuraActions
 from typing import Dict, List, Any
 
 
 class IDEXModePlugin(Extension):
+    
     def __init__(self):
         super().__init__()    
     
         self._application = Application.getInstance()
-        
+        self._curaActions = CuraActions.CuraActions()
+                
         self._i18n_catalog = None
-
-        self.hello_window = None
         
-        settings_definition_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "idex_mode_settings.def.json"
-        )
+        settings_definition_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "idex_mode_settings.def.json")
         try:
             with open(settings_definition_path, "r", encoding="utf-8") as f:
                 self._settings_dict = json.load(f, object_pairs_hook=OrderedDict)
@@ -34,9 +33,11 @@ class IDEXModePlugin(Extension):
             Logger.logException("e", "Could not load IDEX mode settings definition")
             return
 
-        ContainerRegistry.getInstance().containerLoadComplete.connect(self._onContainerLoadComplete)
+        self._global_container_stack = self._application.getGlobalContainerStack()
 
-        self._application.getPreferences().addPreference("IDEXModePlugin/settings_made_visible", False)
+        self._application.globalContainerStackChanged.connect(self._onGlobalContainerStackChanged)
+        self._onGlobalContainerStackChanged()        
+        ContainerRegistry.getInstance().containerLoadComplete.connect(self._onContainerLoadComplete)
 
     def _onContainerLoadComplete(self, container_id: str) -> None:
         if not ContainerRegistry.getInstance().isLoaded(container_id):
@@ -63,9 +64,7 @@ class IDEXModePlugin(Extension):
             return
 
         for setting_key in self._settings_dict.keys():
-            setting_definition = SettingDefinition(
-                setting_key, container, category, self._i18n_catalog
-            )
+            setting_definition = SettingDefinition(setting_key, container, category, self._i18n_catalog)
             setting_definition.deserialize(self._settings_dict[setting_key])
 
             category._children.append(setting_definition)
@@ -77,30 +76,12 @@ class IDEXModePlugin(Extension):
             self._expanded_categories.clear()
             container._updateRelations(setting_definition)
 
-        preferences = self._application.getPreferences()
-        if not preferences.getValue("IDEXModePlugin/settings_made_visible"):
-            setting_keys = self._getAllSettingKeys(self._settings_dict)
-
-            visible_settings = preferences.getValue("general/visible_settings")
-            visible_settings_changed = False
-            for key in setting_keys:
-                if key not in visible_settings:
-                    visible_settings += ";%s" % key
-                    visible_settings_changed = True
-
-            if visible_settings_changed:
-                preferences.setValue("general/visible_settings", visible_settings)
-
-            preferences.setValue("IDEXModePlugin/settings_made_visible", True)
-
-    def _updateAddedChildren(
-        self, container: DefinitionContainer, setting_definition: SettingDefinition
-    ) -> None:
+    def _updateAddedChildren(self, container: DefinitionContainer, setting_definition: SettingDefinition) -> None:
         children = setting_definition.children
         if not children or not setting_definition.parent:
             return
 
-        # make sure this setting is expanded so its children show up  in setting views
+        # make sure this setting is expanded so its children show up in setting views
         if setting_definition.parent.key in self._expanded_categories:
             self._expanded_categories.append(setting_definition.key)
 
@@ -115,3 +96,32 @@ class IDEXModePlugin(Extension):
             if "children" in definition[key]:
                 children.extend(self._getAllSettingKeys(definition[key]["children"]))
         return children
+
+    def _onGlobalContainerStackChanged(self):
+        self._global_container_stack = self._application.getGlobalContainerStack()
+        if self._global_container_stack:
+            global_stack = self._application.getMachineManager().activeMachine
+                
+            if not global_stack:
+                return
+
+            definition = global_stack.getDefinition()
+                
+            self._global_container_stack.propertyChanged.connect(self._onPropertyChanged)
+            
+            # Calling _onPropertyChanged as an initialization
+            self._onPropertyChanged("idex_mode", "value")
+
+    def _onPropertyChanged(self, key: str, property_name: str) -> None:
+        if key == "idex_mode" and property_name == "value":
+            idex_mode = self._global_container_stack.getProperty("idex_mode", "value")
+            extruder_t0 = self._global_container_stack.extruderList[0]
+            extruder_t1 = self._global_container_stack.extruderList[1]
+
+            if idex_mode == "mirror" or idex_mode == "copy":
+                self._application.getMachineManager().setExtruderEnabled(0, True)
+                self._application.getMachineManager().setExtruderEnabled(1, False)
+
+            elif idex_mode == "idex":
+                self._application.getMachineManager().setExtruderEnabled(0, True)
+                self._application.getMachineManager().setExtruderEnabled(1, True)
