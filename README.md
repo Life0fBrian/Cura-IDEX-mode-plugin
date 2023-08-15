@@ -35,5 +35,5 @@ Then you can process this parameter inside your Klipper `PRINT_START` macro for 
 - Halve the width of the build plate when IDEX mode `copy` or `mirror` is selected to get a better feeling for the maximum possible object size.
 
 ## Changelog:
-2023-08-09: Creation of this project
-2023-08-15: Updated plugin to v0.0.2 - depending on IDEX mode the second extruder becomes disabled - adaption of build plate width still in progress.
+- 2023-08-09: Creation of this project
+- 2023-08-15: Updated plugin to v0.0.2 - depending on IDEX mode the second extruder becomes disabled - adaption of build plate width still in progress.
