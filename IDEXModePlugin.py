@@ -14,6 +14,7 @@ from UM.Logger import Logger
 from cura import CuraActions
 from typing import Dict, List, Any
 
+import cura.CuraApplication
 
 class IDEXModePlugin(Extension):
     
@@ -24,6 +25,7 @@ class IDEXModePlugin(Extension):
         self._curaActions = CuraActions.CuraActions()
                 
         self._i18n_catalog = None
+        self._build_width = 0   # build plate width initilization
         
         settings_definition_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "idex_mode_settings.def.json")
         try:
@@ -38,6 +40,18 @@ class IDEXModePlugin(Extension):
         self._application.globalContainerStackChanged.connect(self._onGlobalContainerStackChanged)
         self._onGlobalContainerStackChanged()        
         ContainerRegistry.getInstance().containerLoadComplete.connect(self._onContainerLoadComplete)
+    
+    def _getXWidth(self):
+        machine_manager = self._application.getMachineManager()
+        global_stack = machine_manager.activeMachine
+        definition_changes = global_stack.definitionChanges
+            # add check whether definitions contain a value; if not read it from global stack   
+        if definition_changes.getProperty("machine_width", "value") != None:
+            x_width = definition_changes.getProperty("machine_width", "value")
+        else:   # use default from global stack
+            x_width = self._global_container_stack.getProperty("machine_width", "default_value")
+            
+        return x_width
 
     def _onContainerLoadComplete(self, container_id: str) -> None:
         if not ContainerRegistry.getInstance().isLoaded(container_id):
@@ -47,7 +61,7 @@ class IDEXModePlugin(Extension):
         try:
             container = ContainerRegistry.getInstance().findContainers(id=container_id)[0]
         except IndexError:
-            # the container no longer exists
+            # container does not exist
             return
 
         if not isinstance(container, DefinitionContainer):
@@ -81,7 +95,6 @@ class IDEXModePlugin(Extension):
         if not children or not setting_definition.parent:
             return
 
-        # make sure this setting is expanded so its children show up in setting views
         if setting_definition.parent.key in self._expanded_categories:
             self._expanded_categories.append(setting_definition.key)
 
@@ -100,19 +113,19 @@ class IDEXModePlugin(Extension):
     def _onGlobalContainerStackChanged(self):
         self._global_container_stack = self._application.getGlobalContainerStack()
         if self._global_container_stack:
-            global_stack = self._application.getMachineManager().activeMachine
-                
-            if not global_stack:
-                return
+            self._build_width = self._getXWidth()
+            idex_mode = self._global_container_stack.getProperty("idex_mode", "value")
 
-            definition = global_stack.getDefinition()
-                
             self._global_container_stack.propertyChanged.connect(self._onPropertyChanged)
             
             # Calling _onPropertyChanged as an initialization
             self._onPropertyChanged("idex_mode", "value")
 
     def _onPropertyChanged(self, key: str, property_name: str) -> None:
+        if key == "machine_width" and property_name == "value":
+            self._build_width = self._build_width = self._getXWidth()
+            self._onPropertyChanged("idex_mode", "value")            
+            
         if key == "idex_mode" and property_name == "value":
             idex_mode = self._global_container_stack.getProperty("idex_mode", "value")
             extruder_t0 = self._global_container_stack.extruderList[0]
@@ -121,7 +134,20 @@ class IDEXModePlugin(Extension):
             if idex_mode == "mirror" or idex_mode == "copy":
                 self._application.getMachineManager().setExtruderEnabled(0, True)
                 self._application.getMachineManager().setExtruderEnabled(1, False)
+                self._global_container_stack.setProperty("machine_width", "value", self._build_width / 2)
 
             elif idex_mode == "idex":
                 self._application.getMachineManager().setExtruderEnabled(0, True)
                 self._application.getMachineManager().setExtruderEnabled(1, True)
+                self._global_container_stack.setProperty("machine_width", "value", self._build_width)
+             
+            extruder_t0.enabledChanged.connect(self._onEnabledChangedT0)
+            extruder_t1.enabledChanged.connect(self._onEnabledChangedT1)
+
+    def _onEnabledChangedT0(self):
+        idex_mode = self._global_container_stack.getProperty("idex_mode", "value")
+        #to-do: change available idex modes depending on available extruders
+
+    def _onEnabledChangedT1(self):
+        idex_mode = self._global_container_stack.getProperty("idex_mode", "value")
+        #to-do: change available idex modes depending on available extruders
