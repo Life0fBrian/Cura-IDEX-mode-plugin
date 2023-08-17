@@ -12,11 +12,11 @@ This branch makes it possible for Klipper to support all IDEX modes: **IDEX**, *
 However until now you need to set up the respective mode in the Klipper macros before slicing the models.
 This plugin now lets you select the IDEX mode already in Cura and the parameter can be accessed via the variable `{idex_mode}` in the slicer start code:
 
-`PRINT_START BED_TEMP={material_bed_temperature_layer_0} HOTEND_TEMP={material_print_temperature_layer_0} IDEX_MODE={idex_mode}`
+`PRINT_START BED_TEMP={material_bed_temperature_layer_0} HOTEND_TEMP0={material_print_temperature_layer_0, 0} HOTEND_TEMP1={material_print_temperature_layer_0, 1} IDEX_MODE={idex_mode}`
 
 This could look in the resulting gcode like follows:
 
-`PRINT_START BED_TEMP=65 HOTEND_TEMP=210.0 IDEX_MODE=idex`
+`PRINT_START BED_TEMP=65 HOTEND_TEMP0=210.0 HOTEND_TEMP1=205.0 IDEX_MODE=idex`
 
 Then you can process this parameter inside your Klipper `PRINT_START` macro for example with the following code:
 ```
@@ -37,3 +37,4 @@ Then you can process this parameter inside your Klipper `PRINT_START` macro for 
 ## Changelog:
 - 2023-08-09: Creation of this project
 - 2023-08-15: Updated plugin to v0.0.2 - depending on IDEX mode the second extruder becomes disabled - adaption of build plate width still in progress.
+- 2023-08-17: Updated plugin to v0.1.0 - optimized code and added adaption of built plate width depending on selected IDEX mode.
