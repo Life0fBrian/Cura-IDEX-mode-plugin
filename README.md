@@ -13,7 +13,7 @@ However until now you need to set up the respective mode in the Klipper macros b
 This plugin now lets you select the IDEX mode already in Cura and the parameter can be accessed via the variable `{idex_mode}` in the slicer start code:
 
 `PRINT_START BED_TEMP={material_bed_temperature_layer_0} HOTEND_TEMP0={material_print_temperature_layer_0, 0} HOTEND_TEMP1={material_print_temperature_layer_0, 1} IDEX_MODE={idex_mode}`
-
+(This example also shows how to get the initial layer temps of both extruders)
 This could look in the resulting gcode like follows:
 
 `PRINT_START BED_TEMP=65 HOTEND_TEMP0=210.0 HOTEND_TEMP1=205.0 IDEX_MODE=idex`
