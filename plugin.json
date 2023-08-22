@@ -1,7 +1,7 @@
 {
     "name": "IDEX Mode Setting",
     "author": "LifeOfBrian",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Adds IDEX mode setting to the sidebar.",
     "api": 5,
     "supported_sdk_versions": ["6.0.0", "7.0.0", "8.0.0"]

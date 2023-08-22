@@ -14,7 +14,7 @@ from UM.Logger import Logger
 from cura import CuraActions
 from typing import Dict, List, Any
 
-import cura.CuraApplication
+#import cura.CuraApplication
 
 class IDEXModePlugin(Extension):
     
@@ -118,31 +118,46 @@ class IDEXModePlugin(Extension):
 
             self._global_container_stack.propertyChanged.connect(self._onPropertyChanged)
             
-            # Calling _onPropertyChanged as an initialization
+            # calling _onPropertyChanged for initialization
             self._onPropertyChanged("idex_mode", "value")
+            self._onPropertyChanged("idex_change_width", "value")
 
     def _onPropertyChanged(self, key: str, property_name: str) -> None:
-        if key == "machine_width" and property_name == "value":
-            self._build_width = self._build_width = self._getXWidth()
-            self._onPropertyChanged("idex_mode", "value")            
-            
-        if key == "idex_mode" and property_name == "value":
+        extruder_count = len(self._global_container_stack.extruderList)
+        
+        if extruder_count > 1:
             idex_mode = self._global_container_stack.getProperty("idex_mode", "value")
-            extruder_t0 = self._global_container_stack.extruderList[0]
-            extruder_t1 = self._global_container_stack.extruderList[1]
+            adapt_width = self._global_container_stack.getProperty("idex_change_width", "value")
+            
+            if key == "idex_change_width" and property_name == "value":
+                if adapt_width:
+                    self._global_container_stack.setProperty("machine_width", "value", self._build_width / 2)
+                else:
+                    self._global_container_stack.setProperty("machine_width", "value", self._build_width)        
+        
+            elif key == "machine_width" and property_name == "value":
+                self._build_width = self._build_width = self._getXWidth()
+                self._onPropertyChanged("idex_mode", "value")            
+                
+            elif key == "idex_mode" and property_name == "value":
+                extruder_t0 = self._global_container_stack.extruderList[0]
+                extruder_t1 = self._global_container_stack.extruderList[1]
 
-            if idex_mode == "mirror" or idex_mode == "copy":
-                self._application.getMachineManager().setExtruderEnabled(0, True)
-                self._application.getMachineManager().setExtruderEnabled(1, False)
-                self._global_container_stack.setProperty("machine_width", "value", self._build_width / 2)
+                if idex_mode in ["mirror", "copy"]:
+                    self._application.getMachineManager().setExtruderEnabled(0, True)
+                    self._application.getMachineManager().setExtruderEnabled(1, False)
+                    if adapt_width:
+                        self._global_container_stack.setProperty("machine_width", "value", self._build_width / 2)
+                    else:
+                        self._global_container_stack.setProperty("machine_width", "value", self._build_width)
 
-            elif idex_mode == "idex":
-                self._application.getMachineManager().setExtruderEnabled(0, True)
-                self._application.getMachineManager().setExtruderEnabled(1, True)
-                self._global_container_stack.setProperty("machine_width", "value", self._build_width)
-             
-            extruder_t0.enabledChanged.connect(self._onEnabledChangedT0)
-            extruder_t1.enabledChanged.connect(self._onEnabledChangedT1)
+                elif idex_mode == "idex":
+                    self._application.getMachineManager().setExtruderEnabled(0, True)
+                    self._application.getMachineManager().setExtruderEnabled(1, True)
+                    self._global_container_stack.setProperty("machine_width", "value", self._build_width)
+                 
+                extruder_t0.enabledChanged.connect(self._onEnabledChangedT0)
+                extruder_t1.enabledChanged.connect(self._onEnabledChangedT1)
 
     def _onEnabledChangedT0(self):
         idex_mode = self._global_container_stack.getProperty("idex_mode", "value")

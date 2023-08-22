@@ -13,6 +13,18 @@
 		"default_value": "idex",
 		"settable_per_mesh": false,
 		"settable_per_extruder": false,
-		"settable_per_meshgroup": false
+		"settable_per_meshgroup": false,
+		"enabled": true
+	},
+	"idex_change_width":
+	{
+		"label": "Adapt bed width",
+		"description": "Allows adaption of bed width depending on set IDEX mode.",
+		"type": "bool",
+		"default_value": true,
+		"settable_per_mesh": false,
+		"settable_per_extruder": false,
+		"settable_per_meshgroup": false,
+		"enabled": true		
 	}
 }
