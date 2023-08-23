@@ -14,8 +14,6 @@ from UM.Logger import Logger
 from cura import CuraActions
 from typing import Dict, List, Any
 
-#import cura.CuraApplication
-
 class IDEXModePlugin(Extension):
     
     def __init__(self):
@@ -25,7 +23,7 @@ class IDEXModePlugin(Extension):
         self._curaActions = CuraActions.CuraActions()
                 
         self._i18n_catalog = None
-        self._build_width = 0   # build plate width initilization
+        self._build_width = 0   #build plate width initilization
         
         settings_definition_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "idex_mode_settings.def.json")
         try:
@@ -45,30 +43,30 @@ class IDEXModePlugin(Extension):
         machine_manager = self._application.getMachineManager()
         global_stack = machine_manager.activeMachine
         definition_changes = global_stack.definitionChanges
-            # add check whether definitions contain a value; if not read it from global stack   
+            #add check whether definitions contain a value; if not read it from global stack   
         if definition_changes.getProperty("machine_width", "value") != None:
             x_width = definition_changes.getProperty("machine_width", "value")
-        else:   # use default from global stack
+        else:   #use default from global stack
             x_width = self._global_container_stack.getProperty("machine_width", "default_value")
             
         return x_width
 
     def _onContainerLoadComplete(self, container_id: str) -> None:
         if not ContainerRegistry.getInstance().isLoaded(container_id):
-            # skip containers that could not be loaded, or subsequent findContainers() will cause an infinite loop
+            #skip containers that could not be loaded, or subsequent findContainers() will cause an infinite loop
             return
 
         try:
             container = ContainerRegistry.getInstance().findContainers(id=container_id)[0]
         except IndexError:
-            # container does not exist
+            #container does not exist
             return
 
         if not isinstance(container, DefinitionContainer):
-            # skip containers that are not definitions
+            #skip containers that are not definitions
             return
         if container.getMetaDataEntry("type") == "extruder":
-            # skip extruder definitions
+            #skip extruder definitions
             return
 
         try:
@@ -118,7 +116,7 @@ class IDEXModePlugin(Extension):
 
             self._global_container_stack.propertyChanged.connect(self._onPropertyChanged)
             
-            # calling _onPropertyChanged for initialization
+            #calling _onPropertyChanged for initialization
             self._onPropertyChanged("idex_mode", "value")
             self._onPropertyChanged("idex_change_width", "value")
 
@@ -158,6 +156,8 @@ class IDEXModePlugin(Extension):
                  
                 extruder_t0.enabledChanged.connect(self._onEnabledChangedT0)
                 extruder_t1.enabledChanged.connect(self._onEnabledChangedT1)
+        else:   #for single extruder printers set IDEX mode to always idex
+            self._global_container_stack.setProperty("idex_mode", "value", "idex")
 
     def _onEnabledChangedT0(self):
         idex_mode = self._global_container_stack.getProperty("idex_mode", "value")
