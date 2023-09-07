@@ -32,9 +32,14 @@ Then you can process this parameter inside your Klipper `PRINT_START` macro for 
     {% endif %}
 ```
 
+There is now an enhancement for users of printer/platform models:
+![printer_model](https://github.com/Life0fBrian/Cura-IDEX-mode-plugin/assets/84620081/80a93d51-fcde-478e-b07e-37145dc77f86)
+When you now have the option **Adapt bed width** selected and choose **mirror** or **copy** mode the platform model moves respectively so that the changed print area properly fits to the underlying bed/platform model.
+
 ## To-Dos:
 - ~~Halve the width of the build plate when IDEX mode `copy` or `mirror` is selected to get a better feeling for the maximum possible object size.~~
 - ~~Disabling/hiding IDEX menu items when on single extruder printer.~~ -> Setting fixed to IDEX.
+- Adapting position of a printer platform model to used IDEX mode -> still WIP; when on copy or mirror mode during first load of Cura or printer switching the option "Adapt bed width" needs to be toggled once to get it synced again.
 
 ## Changelog:
 - 2023-08-09: Creation of this project
@@ -42,3 +47,4 @@ Then you can process this parameter inside your Klipper `PRINT_START` macro for 
 - 2023-08-17: Updated plugin to v0.1.0 - optimized code and added adaption of built plate width depending on selected IDEX mode.
 - 2023-08-22: Updated plugin to v0.2.0 - added parameter to enable or disable adaption of bed width. Fixed bug causing Cura to crash when switching to single extruder printer.
 - 2023-08-23: Updated plugin to v0.2.5 - when on single extruder printer IDEX mode is set to IDEX only. Added additional photo on top of this page.
+- 2023-09-07: Updated plugin to v0.5.5 - when a printer platform model is present/loaded its position will be adapted to the IDEX mode as well.
